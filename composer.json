@@ -1,0 +1,19 @@
+{
+    "name": "baijunyao/laravel-test-support",
+    "keywords": ["laravel", "test", "support"],
+    "description": "Laravel Test Support",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "baijunyao",
+            "email": "baijunyao@baijunyao.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Baijunyao\\LaravelTestSupport\\": "src/"
+        }
+    }
+}
