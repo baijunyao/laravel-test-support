@@ -9,17 +9,17 @@ use Illuminate\Support\Str;
 
 class Database
 {
-    protected static $databaseIsCreated = false;
     protected static $database = '';
     protected static $host = '';
     protected static $username = '';
     protected static $password = '';
     protected static $charset = 'utf8';
     protected static $collation = 'utf8_unicode_ci';
+    protected static $instance = null;
 
     static public function createRandomDatabase()
     {
-        if (static::$databaseIsCreated) {
+        if (static::$instance) {
             return static::$database;
         }
 
@@ -38,7 +38,7 @@ class Database
         }
 
         $dbh = null;
-        static::$databaseIsCreated = true;
+        static::$instance = new static();
 
         return $database;
     }
@@ -63,5 +63,10 @@ class Database
         }
 
         $dbh = null;
+    }
+
+    public function __destruct()
+    {
+        static::dropDatabase();
     }
 }

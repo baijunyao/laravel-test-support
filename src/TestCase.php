@@ -9,7 +9,6 @@ abstract class TestCase extends BaseTestCase
     use ReseedsTestDatabase;
 
     protected static $databaseNeedInit = true;
-    protected static $databaseNeedDeleted = true;
 
     public function setUp()
     {
@@ -23,13 +22,5 @@ abstract class TestCase extends BaseTestCase
 
         static::registerDatabaseListener();
         static::reseed();
-    }
-
-    public function __destruct()
-    {
-        if (static::$databaseNeedDeleted) {
-            Database::dropDatabase();
-            static::$databaseNeedDeleted = false;
-        }
     }
 }
