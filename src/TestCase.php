@@ -9,6 +9,7 @@ abstract class TestCase extends BaseTestCase
     use ReseedsTestDatabase;
 
     protected static $databaseNeedInit = true;
+    protected static $bootstrappers = [];
 
     public function setUp()
     {
@@ -18,6 +19,10 @@ abstract class TestCase extends BaseTestCase
             $this->artisan('migrate');
             $this->artisan('db:seed');
             static::$databaseNeedInit = false;
+
+            foreach (static::$bootstrappers as $bootstrapper) {
+                (new $bootstrapper($this->app))->boot();
+            }
         }
 
         static::registerDatabaseListener();
