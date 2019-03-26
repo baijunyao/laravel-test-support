@@ -11,7 +11,7 @@ abstract class TestCase extends BaseTestCase
     protected static $databaseNeedInit = true;
     protected static $bootstrappers = [];
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

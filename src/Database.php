@@ -2,7 +2,6 @@
 
 namespace Baijunyao\LaravelTestSupport;
 
-use Illuminate\Support\Facades\Artisan;
 use PDO;
 use RuntimeException;
 use Illuminate\Support\Str;
