@@ -48,7 +48,7 @@ trait AssertsBaseline
             'headers' => array_merge($response->headers->all(), $headersIgnores),
             'content' => is_json($content) ? json_decode($content, true) : $content
         ];
-        $baselinePath = app_path('tests/Feature/_baseline' . explode('Tests/Feature', str_replace('\\', '/', $class))[1]);
+        $baselinePath = base_path('tests/Feature/_baseline' . explode('Tests/Feature', str_replace('\\', '/', $class))[1]);
         $baselineFile = $baselinePath . '/' . Str::camel(substr($function, 4)) . '.json';
         $do_rebase     = array_search('rebase', $_SERVER['argv'], true) !== false;
 
