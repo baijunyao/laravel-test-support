@@ -2,6 +2,7 @@
 
 namespace Baijunyao\LaravelTestSupport;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -14,6 +15,8 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Carbon::setTestNow(Carbon::create(2019));
 
         if (static::$databaseNeedInit) {
             $this->artisan('migrate');
