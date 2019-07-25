@@ -3,6 +3,7 @@
 namespace Baijunyao\LaravelTestSupport;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 trait ReseedsTestDatabase
 {
@@ -11,9 +12,11 @@ trait ReseedsTestDatabase
     protected function reseed()
     {
         foreach (static::$dirtyTables as $dirtyTable) {
-            $seeder = Str::studly(str_replace(config('database.connections.mysql.prefix'), '', $dirtyTable)) . 'TableSeeder';
+            $tableNameWithoutPrefix = str_replace(config('database.connections.mysql.prefix'), '', $dirtyTable);
+            DB::table($tableNameWithoutPrefix)->truncate();
+            $seeder = Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
 
-            if (file_exists(database_path("seeds/$seeder.php"))) {
+            if (file_exists(database_path("seeds/{$seeder}.php"))) {
                 $this->artisan('db:seed', [
                     '--class' => $seeder
                 ]);
