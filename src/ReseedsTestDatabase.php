@@ -13,10 +13,11 @@ trait ReseedsTestDatabase
     {
         foreach (static::$dirtyTables as $dirtyTable) {
             $tableNameWithoutPrefix = str_replace(config('database.connections.mysql.prefix'), '', $dirtyTable);
-            DB::table($tableNameWithoutPrefix)->truncate();
             $seeder = Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
 
             if (file_exists(database_path("seeds/{$seeder}.php"))) {
+                DB::table($tableNameWithoutPrefix)->truncate();
+
                 $this->artisan('db:seed', [
                     '--class' => $seeder
                 ]);
