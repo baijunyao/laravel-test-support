@@ -65,7 +65,7 @@ trait AssertsBaseline
             $expectation = json_decode(File::get($baselineFile), true);
 
             foreach ($statusHeaderContents as $key => $statusHeaderContent) {
-                $this->assertEquals($statusHeaderContent, $expectation[$key]);
+                $this->assertEquals($expectation[$key], $statusHeaderContent);
             }
         }
     }
