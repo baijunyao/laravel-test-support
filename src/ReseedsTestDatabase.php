@@ -30,7 +30,7 @@ trait ReseedsTestDatabase
     protected static function registerDatabaseListener()
     {
         app('db')->listen(function ($query) {
-            preg_match_all('/^(?:insert into|update|delete from) `(.+?)`.*/', $query->sql, $table);
+            preg_match_all('/^(?:insert|update|delete).+?`(.+?)`.*/', $query->sql, $table);
 
             if (!empty($table[1][0])) {
                 static::$dirtyTables[] = $table[1][0];
