@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Baijunyao\LaravelTestSupport;
 
 use Carbon\Carbon;
@@ -10,7 +12,7 @@ abstract class TestCase extends BaseTestCase
     use ReseedsTestDatabase, AssertsBaseline;
 
     protected static $databaseNeedInit = true;
-    protected static $bootstrappers = [];
+    protected static $bootstrappers    = [];
 
     protected function setUp(): void
     {

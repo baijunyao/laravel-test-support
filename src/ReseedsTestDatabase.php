@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Baijunyao\LaravelTestSupport;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 trait ReseedsTestDatabase
 {
@@ -13,13 +15,13 @@ trait ReseedsTestDatabase
     {
         foreach (static::$dirtyTables as $dirtyTable) {
             $tableNameWithoutPrefix = str_replace(config('database.connections.mysql.prefix'), '', $dirtyTable);
-            $seeder = Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
+            $seeder                 = Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
 
             if (file_exists(database_path("seeds/{$seeder}.php"))) {
                 DB::table($tableNameWithoutPrefix)->truncate();
 
                 $this->artisan('db:seed', [
-                    '--class' => $seeder
+                    '--class' => $seeder,
                 ]);
             }
         }
