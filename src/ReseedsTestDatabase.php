@@ -34,7 +34,7 @@ trait ReseedsTestDatabase
         app('db')->listen(function ($query) {
             preg_match_all('/^(?:insert|update|delete).+?`(.+?)`.*/', $query->sql, $table);
 
-            if (!empty($table[1][0])) {
+            if (!empty($table[1][0]) && !in_array($table[1][0], static::$dirtyTables, true)) {
                 static::$dirtyTables[] = $table[1][0];
             }
         });
