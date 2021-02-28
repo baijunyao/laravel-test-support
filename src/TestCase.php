@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    use ReseedsTestDatabase, AssertsBaseline;
+    use AssertsBaseline, ReseedsTestDatabase;
 
     protected static $databaseNeedInit = true;
     protected static $bootstrappers    = [];
