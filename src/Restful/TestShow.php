@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Baijunyao\LaravelTestSupport\Rest;
+namespace Baijunyao\LaravelTestSupport\Restful;
 
 trait TestShow
 {
