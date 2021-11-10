@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Baijunyao\LaravelTestSupport;
 
 use Carbon\Carbon;
-use File;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use RuntimeException;
-use Str;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -36,9 +36,9 @@ abstract class TestCase extends BaseTestCase
 
         foreach (array_unique($dirtyTables) as $dirtyTable) {
             $tableNameWithoutPrefix = str_replace(config('database.connections.mysql.prefix'), '', $dirtyTable);
-            $seeder                 = \Illuminate\Support\Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
+            $seeder                 = Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
 
-            if (file_exists(database_path("seeds/{$seeder}.php"))) {
+            if (File::exists(database_path("seeds/{$seeder}.php"))) {
                 DB::table($tableNameWithoutPrefix)->truncate();
 
                 $this->artisan('db:seed', [
