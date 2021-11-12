@@ -9,10 +9,30 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use RuntimeException;
+use Illuminate\Testing\TestResponse;
+use ReflectionClass;
+use Spatie\Snapshots\MatchesSnapshots;
 
 abstract class TestCase extends BaseTestCase
 {
+    use MatchesSnapshots;
+
+    protected function getJsonEncodeFlags(): int
+    {
+        return JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
+    }
+
+    protected function getSnapshotDirectory(): string
+    {
+        return dirname(
+            str_replace(
+                $this->app->basePath('tests/'),
+                $this->app->basePath('tests/_baseline/'),
+                (new ReflectionClass($this))->getFileName()
+            )
+        );
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -50,66 +70,15 @@ abstract class TestCase extends BaseTestCase
         parent::tearDown();
     }
 
-    public function assertResponse($response, $headersIgnores = null, $contentIgnores = null)
+    public function assertResponse(TestResponse $response, $headersIgnores = null, $contentIgnores = null)
     {
-        $class    = static::class;
-        $function = collect(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS))
-            ->where('class', $class)
-            ->pluck('function')
-            ->filter(function ($item) {
-                return substr($item, 0, 4) === 'test';
-            })
-            ->first();
+        $content = $response->getContent();
 
-        $defaultHeadersIgnores = [
-            'date'       => 'date_ignore',
-            'set-cookie' => 'set-cookie_ignore',
-        ];
-
-        $defaultContentIgnores = [
-            '/<meta name="csrf-token" content=".*">/'          => '<meta name="csrf-token" content="csrf_token_ignore">',
-            '/<input type="hidden" name="_token" value=".*">/' => '<input type="hidden" name="_token" value="csrf_token_ignore">',
-        ];
-
-        if ($headersIgnores === null) {
-            $headersIgnores = $defaultHeadersIgnores;
-        } else {
-            $headersIgnores += $defaultHeadersIgnores;
-        }
-
-        if ($contentIgnores === null) {
-            $contentIgnores = $defaultContentIgnores;
-        } else {
-            $contentIgnores += $defaultContentIgnores;
-        }
-
-        $content = preg_replace(array_keys($contentIgnores), array_values($contentIgnores), $response->getContent());
-
-        $statusHeaderContents = [
+        $this->assertMatchesJsonSnapshot([
             'status_code' => $response->getStatusCode(),
-            'headers'     => array_merge($response->headers->all(), $headersIgnores),
-            'content'     => Str::isJsonArray($content) || Str::isJsonObject($content) ? json_decode($content, true) : $content,
-        ];
-        $baselinePath  = base_path('tests/Feature/_baseline' . explode('Tests/Feature', str_replace('\\', '/', $class))[1]);
-        $baselineFile  = $baselinePath . '/' . Str::camel(substr($function, 4)) . '.json';
-        $do_rebase     = array_search('rebase', $_SERVER['argv'], true) !== false;
-
-        if (!File::isFile($baselineFile) && $do_rebase === false) {
-            throw new RuntimeException("Test baseline data for $class::$function is not found, use '-d rebase' argument to create the baseline data.");
-        } elseif ($do_rebase) {
-            if (!File::isDirectory($baselinePath)) {
-                File::makeDirectory($baselinePath, 0755, true);
-            }
-
-            File::put($baselineFile, json_encode($statusHeaderContents, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-            echo 'R';
-        } else {
-            $expectation = json_decode(File::get($baselineFile), true);
-
-            foreach ($statusHeaderContents as $key => $statusHeaderContent) {
-                static::assertEquals($expectation[$key], $statusHeaderContent);
-            }
-        }
+            'headers' => array_merge($response->headers->all(), ['date' => Carbon::now()->format('D, d M Y H:i:s T')]),
+            'content' => $content === '' ? '' : json_decode($content, true),
+        ]);
     }
 
     public function getRoute()

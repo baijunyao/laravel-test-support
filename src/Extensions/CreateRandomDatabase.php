@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Baijunyao\LaravelTestSupport\Extensions;
 
-use Database\Seeders\DatabaseSeeder;
 use Dotenv\Dotenv;
 use Dotenv\Repository\Adapter\PutenvAdapter;
 use Dotenv\Repository\RepositoryBuilder;
@@ -59,7 +58,7 @@ class CreateRandomDatabase implements BeforeFirstTestHook, AfterLastTestHook
             $migrator->run(static::APP_ROOT_PATH . 'database/migrations');
 
             // Seed
-            (new DatabaseSeeder())->run();
+            $this->seed();
         });
 
         // Clean unused databases
@@ -80,5 +79,14 @@ class CreateRandomDatabase implements BeforeFirstTestHook, AfterLastTestHook
     public function executeAfterLastTest(): void
     {
         $this->databaseManager->getSchemaBuilder()->dropDatabaseIfExists($this->databaseName);
+    }
+
+    protected function seed()
+    {
+        $databaseSeeder = 'Database\\Seeders\\DatabaseSeeder';
+
+        if (class_exists($databaseSeeder)) {
+            (new $databaseSeeder())->run();
+        }
     }
 }
