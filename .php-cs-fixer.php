@@ -1,7 +1,25 @@
 <?php
 
-return PhpCsFixer\Config::create()
-    ->setRiskyAllowed(true)
+$finder = PhpCsFixer\Finder::create()
+    ->notPath('app/Console/Kernel.php')
+    ->notPath('app/Http/Kernel.php')
+    ->exclude('bootstrap')
+    ->exclude('config')
+    ->exclude('database/factories')
+    ->exclude('public')
+    ->exclude('resources')
+    ->exclude('storage')
+    ->notPath('_ide_helper.php')
+    ->notPath('_ide_helper_models.php')
+    ->notPath('server.php')
+    ->in(__DIR__);
+
+$config = new PhpCsFixer\Config();
+
+return $config->setRiskyAllowed(true)
+    ->registerCustomFixers([
+        new AdamWojs\PhpCsFixerPhpdocForceFQCN\Fixer\Phpdoc\ForceFQCNFixer(),
+    ])
     ->setRules([
         '@Symfony' => true,
         '@Symfony:risky' => true,
@@ -21,8 +39,6 @@ return PhpCsFixer\Config::create()
         'fopen_flag_order' => true,
         'function_to_constant' => ['functions' => ['get_class', 'get_called_class', 'php_sapi_name', 'phpversion', 'pi']],
         'heredoc_to_nowdoc' => true,
-        'increment_style' => false,
-        'is_null' => ['use_yoda_style' => false],
         'linebreak_after_opening_tag' => true,
         'list_syntax' => ['syntax' => 'short'],
         'logical_operators' => true,
@@ -37,7 +53,7 @@ return PhpCsFixer\Config::create()
         'no_homoglyph_names' => true,
         'no_null_property_initialization' => true,
         'no_php4_constructor' => true,
-        'no_short_echo_tag' => true,
+        'echo_tag_syntax' => ['format' => 'long'],
         'no_unneeded_curly_braces' => true,
         'no_unneeded_final_method' => true,
         'no_unreachable_default_argument_value' => true,
@@ -60,27 +76,15 @@ return PhpCsFixer\Config::create()
         'php_unit_set_up_tear_down_visibility' => true,
         'php_unit_test_case_static_method_calls' => true,
         'pow_to_exponentiation' => false,
-        'pre_increment' => false,
+        'increment_style' => ['style' => 'post'],
         'return_assignment' => true,
         'simplified_null_return' => false,
         'short_scalar_cast' => true,
         'string_line_ending' => true,
         'yoda_style' => false,
         'void_return' => false,
-        'single_trait_insert_per_statement' => false
+        'single_trait_insert_per_statement' => false,
+        'ordered_traits' => false,
+        'AdamWojs/phpdoc_force_fqcn_fixer' => true,
     ])
-    ->setFinder(
-        PhpCsFixer\Finder::create()
-            ->notPath('app/Console/Kernel.php')
-            ->notPath('app/Http/Kernel.php')
-            ->exclude('bootstrap')
-            ->exclude('config')
-            ->exclude('database/factories')
-            ->exclude('public')
-            ->exclude('resources')
-            ->exclude('storage')
-            ->notPath('_ide_helper.php')
-            ->notPath('server.php')
-            ->in(__DIR__)
-    )
-;
+    ->setFinder($finder);
