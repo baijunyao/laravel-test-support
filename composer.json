@@ -20,8 +20,7 @@
         "vlucas/phpdotenv": "^5.3"
     },
     "require-dev": {
-        "adamwojs/php-cs-fixer-phpdoc-force-fqcn": "^2.0",
-        "friendsofphp/php-cs-fixer": "^3.3",
+        "baijunyao/php-cs-fixer-config": "^0.1",
         "orchestra/testbench": "^5.0|^6.0"
     },
     "autoload": {

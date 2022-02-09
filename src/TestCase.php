@@ -17,22 +17,6 @@ abstract class TestCase extends BaseTestCase
 {
     use MatchesSnapshots;
 
-    protected function getJsonEncodeFlags(): int
-    {
-        return JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
-    }
-
-    protected function getSnapshotDirectory(): string
-    {
-        return dirname(
-            str_replace(
-                $this->app->basePath('tests/'),
-                $this->app->basePath('tests/_baseline/'),
-                (new ReflectionClass($this))->getFileName()
-            )
-        );
-    }
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -76,8 +60,8 @@ abstract class TestCase extends BaseTestCase
 
         $this->assertMatchesJsonSnapshot([
             'status_code' => $response->getStatusCode(),
-            'headers' => array_merge($response->headers->all(), ['date' => Carbon::now()->format('D, d M Y H:i:s T')]),
-            'content' => $content === '' ? '' : json_decode($content, true),
+            'headers'     => array_merge($response->headers->all(), ['date' => Carbon::now()->format('D, d M Y H:i:s T')]),
+            'content'     => $content === '' ? '' : json_decode($content, true),
         ]);
     }
 
@@ -86,6 +70,22 @@ abstract class TestCase extends BaseTestCase
         return Str::plural(
             Str::camel(
                 str_replace('ControllerTest', '', class_basename(static::class))
+            )
+        );
+    }
+
+    protected function getJsonEncodeFlags(): int
+    {
+        return JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
+    }
+
+    protected function getSnapshotDirectory(): string
+    {
+        return dirname(
+            str_replace(
+                $this->app->basePath('tests/'),
+                $this->app->basePath('tests/_baseline/'),
+                (new ReflectionClass($this))->getFileName()
             )
         );
     }
