@@ -54,9 +54,9 @@ abstract class TestCase extends BaseTestCase
         parent::tearDown();
     }
 
-    public function assertResponse(TestResponse $response, $headersIgnores = null, $contentIgnores = null)
+    public function assertResponse(TestResponse $response, array $contentIgnores = [])
     {
-        $content = $response->getContent();
+        $content = preg_replace(array_keys($contentIgnores), array_values($contentIgnores), $response->getContent());
 
         $this->assertMatchesJsonSnapshot([
             'status_code' => $response->getStatusCode(),
