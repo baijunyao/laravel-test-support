@@ -56,12 +56,21 @@ abstract class TestCase extends BaseTestCase
 
     public function assertResponse(TestResponse $response, array $contentIgnores = [])
     {
-        $content = preg_replace(array_keys($contentIgnores), array_values($contentIgnores), $response->getContent());
+        $statusCode = $response->getStatusCode();
+        $content    = preg_replace(array_keys($contentIgnores), array_values($contentIgnores), $response->getContent());
+
+        if (Str::isJson($content)) {
+            $content = json_decode($content, true);
+        } else {
+            if ($statusCode !== 200) {
+                $content = (string) $response->baseResponse->exception;
+            }
+        }
 
         $this->assertMatchesJsonSnapshot([
             'status_code' => $response->getStatusCode(),
             'headers'     => array_merge($response->headers->all(), ['date' => Carbon::now()->format('D, d M Y H:i:s T')]),
-            'content'     => $content === '' ? '' : json_decode($content, true),
+            'content'     => $content,
         ]);
     }
 
