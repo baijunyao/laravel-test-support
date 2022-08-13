@@ -9,7 +9,7 @@ trait TestDestroy
     public function testDestroy()
     {
         $this->assertResponse(
-            $this->delete(route($this->getRoute() . '.destroy', $this->destroyId))
+            $this->delete(route($this->getRoute() . '.destroy', $this->destroyId), [], $this->getHeaders())
         );
     }
 }

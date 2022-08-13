@@ -9,7 +9,7 @@ trait TestUpdate
     public function testUpdate()
     {
         $this->assertResponse(
-            $this->putJson(route($this->getRoute() . '.update', $this->updateId), $this->updateData)
+            $this->putJson(route($this->getRoute() . '.update', $this->updateId), $this->updateData, $this->getHeaders())
         );
     }
 }

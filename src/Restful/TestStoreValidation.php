@@ -9,7 +9,7 @@ trait TestStoreValidation
     public function testStoreValidation()
     {
         $this->assertResponse(
-            $this->postJson(route($this->getRoute() . '.store'))
+            $this->postJson(route($this->getRoute() . '.store'), [], $this->getHeaders())
         );
     }
 }

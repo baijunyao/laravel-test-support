@@ -83,6 +83,11 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
+    public function getHeaders(): array
+    {
+        return [];
+    }
+
     protected function getJsonEncodeFlags(): int
     {
         return JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
