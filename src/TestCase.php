@@ -40,10 +40,25 @@ abstract class TestCase extends BaseTestCase
 
         foreach (array_unique($dirtyTables) as $dirtyTable) {
             $tableNameWithoutPrefix = str_replace(config('database.connections.mysql.prefix'), '', $dirtyTable);
-            $seeder                 = Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
 
-            if (File::exists(database_path("seeds/{$seeder}.php"))) {
+            /**
+             * There are two possibilities, e.g.
+             * 1. The class name before Laravel 8 is UsersTableSeeder, path is database/seeds/UsersTableSeeder.php
+             * 2. The class name after Laravel 8 is UserTableSeeder, path is database/seeders/UserTableSeeder.php
+             */
+            $seederBeforeLarave8 = Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
+            $pathBeforeLarave8   = database_path("seeds/{$seederBeforeLarave8}.php");
+
+            $seederAfterLarave8 = Str::singular(Str::studly($tableNameWithoutPrefix)) . 'Seeder';
+            $pathAfterLarave8   = database_path("seeders/{$seederAfterLarave8}.php");
+
+            $isBeforeLarave8 = File::exists($pathBeforeLarave8);
+            $isAfterLarave8  = File::exists($pathAfterLarave8);
+
+            if ($isBeforeLarave8 || $isAfterLarave8) {
                 DB::table($tableNameWithoutPrefix)->truncate();
+
+                $seeder = $isBeforeLarave8 ? $seederBeforeLarave8 : $seederAfterLarave8;
 
                 $this->artisan('db:seed', [
                     '--class' => $seeder,
