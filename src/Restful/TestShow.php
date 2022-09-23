@@ -9,7 +9,7 @@ trait TestShow
     public function testShow()
     {
         $this->assertResponse(
-            $this->get(route($this->getRoute() . '.show', $this->showId), $this->getHeaders())
+            $this->get(route($this->getRoute() . '.show', $this->showId) . '?' . http_build_query($this->parameter), $this->getHeaders())
         );
     }
 }

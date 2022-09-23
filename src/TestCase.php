@@ -17,6 +17,8 @@ abstract class TestCase extends BaseTestCase
 {
     use MatchesSnapshots;
 
+    public array $parameter = [];
+
     protected function setUp(): void
     {
         parent::setUp();
