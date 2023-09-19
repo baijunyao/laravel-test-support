@@ -36,7 +36,7 @@ Modify the *phpunit.xml*  file
          colors="true"
 >
 +   <extensions>
-+       <bootstrap class="Baijunyao\LaravelTestSupport\Extensions\CreateRandomDatabase"/>
++       <bootstrap class="Baijunyao\LaravelTestSupport\Extensions\CreateRandomDatabaseExtension"/>
 +   </extensions>
     <testsuites>
         <testsuite name="Unit">
