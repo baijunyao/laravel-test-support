@@ -1,12 +1,11 @@
 # Laravel Test Support
 
-Laravel Test Support is an extension package developed for the Laravel project to help simplify writing PHPUnit tests
+Laravel Test Support is an extension package developed for the Laravel project to help simplify writing PHPUnit or Pest tests
 
 ## Installation
 
 Require this package with composer using the following command:
 ```bash
-composer config repositories.phpunit-snapshot-assertions vcs https://github.com/baijunyao/phpunit-snapshot-assertions
 composer require baijunyao/laravel-test-support
 ```
 
@@ -23,7 +22,6 @@ namespace Tests;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication;
 }
 ```
 

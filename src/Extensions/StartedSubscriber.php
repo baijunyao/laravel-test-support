@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Baijunyao\LaravelTestSupport\Extensions;
 
+use Carbon\Carbon;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Date;
@@ -45,8 +46,12 @@ final class StartedSubscriber implements \PHPUnit\Event\TestRunner\StartedSubscr
                 $migrator->getRepository()->createRepository();
                 $migrator->run($this->appRootPath . 'database/migrations');
 
+                Carbon::setTestNow(Carbon::create(2019));
+
                 // Seed
                 $this->seed();
+
+                Carbon::setTestNow();
             });
 
             // Clean unused databases

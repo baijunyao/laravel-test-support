@@ -6,17 +6,14 @@ namespace Baijunyao\LaravelTestSupport;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
-use ReflectionClass;
-use Spatie\Snapshots\MatchesSnapshots;
 
 abstract class TestCase extends BaseTestCase
 {
-    use MatchesSnapshots;
-
     public array $parameter = [];
 
     protected function setUp(): void
@@ -71,53 +68,35 @@ abstract class TestCase extends BaseTestCase
         parent::tearDown();
     }
 
-    public function assertResponse(TestResponse $response, array $contentIgnores = [])
+    protected function createTestResponse($response, $request)
     {
-        $statusCode = $response->getStatusCode();
-        $content    = preg_replace(array_keys($contentIgnores), array_values($contentIgnores), $response->getContent());
+        $testResponse = parent::createTestResponse($response, $request);
 
-        if (Str::isJson($content)) {
-            $content = json_decode($content, true);
-        } else {
-            if ($statusCode !== 200) {
-                $content = (string) $response->baseResponse->exception;
-            }
+        if ($response instanceof JsonResponse) {
+            return new class($testResponse) extends TestResponse {
+                public function toSnapshot()
+                {
+                    return json_encode(
+                        [
+                            'status_code' => $this->getStatusCode(),
+                            'headers'     => array_merge(
+                                $this->headers->all(),
+                                [
+                                    'date'       => Carbon::now()->format('D, d M Y H:i:s T'),
+                                    'set-cookie' => [
+                                        'XSRF-TOKEN'      => '***',
+                                        'laravel_session' => '***',
+                                    ],
+                                ]
+                            ),
+                            'content'     => $this->json(),
+                        ],
+                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+                    );
+                }
+            };
         }
 
-        $this->assertMatchesJsonSnapshot([
-            'status_code' => $response->getStatusCode(),
-            'headers'     => array_merge($response->headers->all(), ['date' => Carbon::now()->format('D, d M Y H:i:s T')]),
-            'content'     => $content,
-        ]);
-    }
-
-    public function getRoute()
-    {
-        return Str::plural(
-            Str::camel(
-                str_replace('ControllerTest', '', class_basename(static::class))
-            )
-        );
-    }
-
-    public function getHeaders(): array
-    {
-        return [];
-    }
-
-    protected function getJsonEncodeFlags(): int
-    {
-        return JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
-    }
-
-    protected function getSnapshotDirectory(): string
-    {
-        return dirname(
-            str_replace(
-                $this->app->basePath('tests/'),
-                $this->app->basePath('tests/_baseline/'),
-                (new ReflectionClass($this))->getFileName()
-            )
-        );
+        return $testResponse;
     }
 }

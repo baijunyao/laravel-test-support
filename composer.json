@@ -11,8 +11,6 @@
         }
     ],
     "require": {
-        "baijunyao/laravel-support": "^1.3",
-        "spatie/phpunit-snapshot-assertions": "dev-main",
         "illuminate/database": "^7.0|^8.0|^9.0|^10.0|^11.0",
         "illuminate/support": "^7.0|^8.0|^9.0|^10.0|^11.0",
         "illuminate/testing": "^7.0|^8.0|^9.0|^10.0|^11.0",
@@ -21,8 +19,7 @@
         "vlucas/phpdotenv": "^5.3"
     },
     "require-dev": {
-        "baijunyao/php-cs-fixer-config": "^0.3",
-        "orchestra/testbench": "^5.0|^6.0|^7.0|^8.0"
+        "baijunyao/php-cs-fixer-config": "^0.3"
     },
     "autoload": {
         "psr-4": {
@@ -32,13 +29,6 @@
     "config": {
         "sort-packages": true
     },
-    "repositories": [
-        {
-            "name": "spatie/phpunit-snapshot-assertions",
-            "type": "vcs",
-            "url": "https://github.com/baijunyao/phpunit-snapshot-assertions"
-        }
-    ],
     "scripts": {
         "phpcs": "vendor/bin/php-cs-fixer fix",
         "lint": [
