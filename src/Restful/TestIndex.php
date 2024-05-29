@@ -9,7 +9,7 @@ trait TestIndex
     public function testIndex()
     {
         $this->assertResponse(
-            $this->get(route($this->getRoute() . '.index') . '?' . http_build_query($this->parameter), $this->getHeaders())
+            $this->getJson(route($this->getRoute() . '.index') . '?' . http_build_query($this->parameter), $this->getHeaders())
         );
     }
 }
