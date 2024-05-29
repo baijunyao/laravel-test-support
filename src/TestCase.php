@@ -33,7 +33,7 @@ abstract class TestCase extends BaseTestCase
         $dirtyTables = [];
 
         foreach (DB::getQueryLog() as $queryLog) {
-            preg_match_all('/^(?:insert|update|delete).+?`(.+?)`.*/', $queryLog['query'], $table);
+            preg_match_all('/^(?:insert|update|delete).+?[`\'"](.+?)[`\'"].*/', $queryLog['query'], $table);
 
             if (isset($table[1][0]) && !in_array($table[1][0], $dirtyTables, true)) {
                 $dirtyTables[] = $table[1][0];
