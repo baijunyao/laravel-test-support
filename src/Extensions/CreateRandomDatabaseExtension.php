@@ -16,7 +16,6 @@ use PHPUnit\TextUI\Configuration\Configuration;
 
 final class CreateRandomDatabaseExtension implements Extension
 {
-    private const APP_ROOT_PATH   = __DIR__ . '/../../../../../';
     private const DATABASE_PREFIX = 'test_';
 
     private DatabaseManager $databaseManager;
@@ -24,17 +23,18 @@ final class CreateRandomDatabaseExtension implements Extension
 
     public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters): void
     {
+        $rootPath      = getcwd() . '/';
         $envRepository = RepositoryBuilder::createWithNoAdapters()
             ->addAdapter(PutenvAdapter::class)
             ->immutable()
             ->make();
-        Dotenv::create($envRepository, static::APP_ROOT_PATH, '.env')->safeLoad();
+        Dotenv::create($envRepository, $rootPath, '.env')->safeLoad();
 
-        $laravel = require static::APP_ROOT_PATH . 'bootstrap/app.php';
+        $laravel = require $rootPath . 'bootstrap/app.php';
         $laravel->make(Kernel::class)->bootstrap();
 
         $facade->registerSubscribers(
-            new StartedSubscriber($laravel, static::APP_ROOT_PATH, static::DATABASE_PREFIX),
+            new StartedSubscriber($laravel, $rootPath, static::DATABASE_PREFIX),
             new FinishedSubscriber($laravel, static::DATABASE_PREFIX),
         );
     }

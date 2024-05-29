@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Baijunyao\LaravelTestSupport\Extensions;
 
+use Carbon\Carbon;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Date;
@@ -79,10 +80,14 @@ final class StartedSubscriber implements \PHPUnit\Event\TestRunner\StartedSubscr
 
     protected function seed()
     {
+        Carbon::setTestNow(Carbon::create(2019));
+
         $databaseSeeder = 'Database\\Seeders\\DatabaseSeeder';
 
         if (class_exists($databaseSeeder)) {
             (new $databaseSeeder())->run();
         }
+
+        Carbon::setTestNow();
     }
 }
