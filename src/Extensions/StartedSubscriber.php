@@ -84,10 +84,14 @@ final class StartedSubscriber implements \PHPUnit\Event\TestRunner\StartedSubscr
 
     protected function seed()
     {
+        Carbon::setTestNow(Carbon::create(2019));
+
         $databaseSeeder = 'Database\\Seeders\\DatabaseSeeder';
 
         if (class_exists($databaseSeeder)) {
             (new $databaseSeeder())->run();
         }
+
+        Carbon::setTestNow();
     }
 }
