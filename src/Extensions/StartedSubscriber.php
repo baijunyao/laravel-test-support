@@ -34,7 +34,7 @@ final class StartedSubscriber implements \PHPUnit\Event\TestRunner\StartedSubscr
             $configRepository = $this->laravel['config'];
             $configRepository->set(
                 'database.connections.testing',
-                ['database' => $this->databaseName] + $configRepository->get('database.connections.mysql')
+                ['database' => $this->databaseName] + $configRepository->get('database.connections.' . $configRepository->get('database.default'))
             );
 
             // Create tables and seed test data
@@ -49,8 +49,16 @@ final class StartedSubscriber implements \PHPUnit\Event\TestRunner\StartedSubscr
                 $this->seed();
             });
 
+            $driver = $configRepository->get('database.connections.testing.driver');
+
+            if ($driver === 'pgsql') {
+                $showDatabaseSql = "SELECT datname FROM pg_database WHERE datname like '" . $this->databasePrefix . "%'";
+            } else {
+                $showDatabaseSql = 'SHOW DATABASES LIKE "' . $this->databasePrefix . '%"';
+            }
+
             // Clean unused databases
-            $databases = $this->databaseManager->select('SHOW DATABASES LIKE "' . $this->databasePrefix . '%"');
+            $databases = $this->databaseManager->select($showDatabaseSql);
 
             foreach ($databases as $database) {
                 /** @var string $databaseName */
