@@ -91,12 +91,147 @@ abstract class TestCase extends BaseTestCase
                             ),
                             'content'     => $this->json(),
                         ],
-                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
                     );
                 }
             };
         }
 
         return $testResponse;
+    }
+
+    public function getUri()
+    {
+        // e.g. P\Tests\Feature\Admin\Resources\ArticleTagControllerTest
+        $classFQCN = static::class;
+
+        // e.g. ArticleTagControllerTest
+        $className = class_basename($classFQCN);
+
+        // e.g. Admin\Resources\
+        $prefixPath = Str::before(
+            Str::after($classFQCN, 'P\\Tests\\Feature\\'), // e.g. Admin\Resources\ArticleTagControllerTest
+            $className
+        );
+
+        // e.g. admin
+        $prefix = Str::lower(
+            Str::rtrim($prefixPath, '\\Resources\\')
+        );
+
+        if ($prefix !== '') {
+            // e.g. admin/
+            $prefix = Str::kebab($prefix) . '/';
+        }
+
+        // e.g. ArticleTags
+        $resource = Str::plural(
+            Str::before($className, 'ControllerTest') // e.g. ArticleTag
+        );
+
+        // e.g. api/admin/article-tags
+        return 'api/' . $prefix . Str::kebab($resource);
+    }
+
+    public function getHeaders(): array
+    {
+        return [];
+    }
+
+    public function snapshotIndex(array $parameter = [], $headers = []): void
+    {
+        $response = $this->getJson(
+            $this->getUri() . '?' . http_build_query($parameter),
+            array_merge($this->getHeaders(), $headers)
+        );
+
+        expect($response)->toMatchSnapshot();
+    }
+
+    public function snapshotShow(string|int $id, array $parameter = [], $headers = []): void
+    {
+        $response = $this->getJson(
+            $this->getUri() . '/' . $id . '?' . http_build_query($parameter),
+            array_merge($this->getHeaders(), $headers)
+        );
+
+        expect($response)->toMatchSnapshot();
+    }
+
+    public function snapshotStore(array $body, $headers = []): void
+    {
+        $response = $this->postJson(
+            $this->getUri(),
+            $body,
+            array_merge($this->getHeaders(), $headers)
+        );
+
+        expect($response)->toMatchSnapshot();
+    }
+
+    public function snapshotStoreValidation($headers = []): void
+    {
+        $response = $this->postJson(
+            $this->getUri(),
+            [],
+            array_merge($this->getHeaders(), $headers)
+        );
+
+        expect($response)->toMatchSnapshot();
+    }
+
+    public function snapshotUpdate(string|int $id, array $body, $headers = []): void
+    {
+        $response = $this->putJson(
+            $this->getUri() . '/' . $id,
+            $body,
+            array_merge($this->getHeaders(), $headers)
+        );
+
+        expect($response)->toMatchSnapshot();
+    }
+
+    public function snapshotUpdateValidation(string|int $id, $headers = []): void
+    {
+        $response = $this->postJson(
+            $this->getUri() . '/' . $id,
+            [],
+            array_merge($this->getHeaders(), $headers)
+        );
+
+        expect($response)->toMatchSnapshot();
+    }
+
+    public function snapshotDelete(string|int $id, $headers = []): void
+    {
+        $response = $this->deleteJson(
+            $this->getUri() . '/' . $id,
+            [],
+            array_merge($this->getHeaders(), $headers)
+        );
+
+        expect($response)->toMatchSnapshot();
+    }
+
+    public function snapshotRestore(string|int $id, $headers = []): void
+    {
+        $response = $this->patchJson(
+            $this->getUri() . '/' . $id . '/restore',
+            [],
+            array_merge($this->getHeaders(), $headers)
+        );
+
+        expect($response)->toMatchSnapshot();
+    }
+
+    public function snapshotForceDelete(string|int $id, $headers = []): void
+    {
+        $response = $this->deleteJson(
+            $this->getUri() . '/' . $id . '/force-delete',
+            [],
+            array_merge($this->getHeaders(), $headers)
+        );
+
+        expect($response)->toMatchSnapshot();
     }
 }
