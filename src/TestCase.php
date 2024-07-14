@@ -68,38 +68,6 @@ abstract class TestCase extends BaseTestCase
         parent::tearDown();
     }
 
-    protected function createTestResponse($response, $request)
-    {
-        $testResponse = parent::createTestResponse($response, $request);
-
-        if ($response instanceof JsonResponse) {
-            return new class($testResponse) extends TestResponse {
-                public function toSnapshot()
-                {
-                    return json_encode(
-                        [
-                            'status_code' => $this->getStatusCode(),
-                            'headers'     => array_merge(
-                                $this->headers->all(),
-                                [
-                                    'date'       => Carbon::now()->format('D, d M Y H:i:s T'),
-                                    'set-cookie' => [
-                                        'XSRF-TOKEN'      => '***',
-                                        'laravel_session' => '***',
-                                    ],
-                                ]
-                            ),
-                            'content'     => $this->json(),
-                        ],
-                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-                    );
-                }
-            };
-        }
-
-        return $testResponse;
-    }
-
     public function getUri()
     {
         // e.g. P\Tests\Feature\Admin\Resources\ArticleTagControllerTest
@@ -233,5 +201,34 @@ abstract class TestCase extends BaseTestCase
         );
 
         expect($response)->toMatchSnapshot();
+    }
+
+    protected function createTestResponse($response, $request)
+    {
+        $testResponse = parent::createTestResponse($response, $request);
+
+        if ($response instanceof JsonResponse || $testResponse->status() === 204) {
+            return new class($testResponse) extends TestResponse {
+                public function toSnapshot()
+                {
+                    return json_encode([
+                        'status_code' => $this->getStatusCode(),
+                        'headers'     => array_merge(
+                            $this->headers->all(),
+                            [
+                                'date'       => Carbon::now()->format('D, d M Y H:i:s T'),
+                                'set-cookie' => [
+                                    'XSRF-TOKEN'      => '***',
+                                    'laravel_session' => '***',
+                                ],
+                            ]
+                        ),
+                        'content' => $this->getStatusCode() === 204 ? null : $this->json(),
+                    ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                }
+            };
+        }
+
+        return $testResponse;
     }
 }
