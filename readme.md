@@ -25,6 +25,8 @@ abstract class TestCase extends BaseTestCase
 }
 ```
 
+After each test, the base test case truncates every table written by that test. If a matching table seeder exists, it then runs the seeder to restore the table's baseline data. Foreign key constraints are temporarily disabled during cleanup.
+
 Modify the *phpunit.xml*  file
 ```diff
 <?xml version="1.0" encoding="UTF-8"?>
