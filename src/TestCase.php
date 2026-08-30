@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use ReflectionClass;
@@ -35,36 +36,47 @@ abstract class TestCase extends BaseTestCase
         foreach (DB::getQueryLog() as $queryLog) {
             preg_match_all('/^(?:insert|update|delete).+?[`\'"](.+?)[`\'"].*/', $queryLog['query'], $table);
 
-            if (isset($table[1][0]) && !in_array($table[1][0], $dirtyTables, true)) {
+            if (isset($table[1][0]) === true && in_array($table[1][0], $dirtyTables, true) === false) {
                 $dirtyTables[] = $table[1][0];
             }
         }
 
-        foreach (array_unique($dirtyTables) as $dirtyTable) {
-            $tableNameWithoutPrefix = str_replace(config('database.connections.mysql.prefix'), '', $dirtyTable);
+        if ($dirtyTables !== []) {
+            Schema::disableForeignKeyConstraints();
 
-            /**
-             * There are two possibilities, e.g.
-             * 1. The class name before Laravel 8 is UsersTableSeeder, path is database/seeds/UsersTableSeeder.php
-             * 2. The class name after Laravel 8 is UserTableSeeder, path is database/seeders/UserTableSeeder.php
-             */
-            $seederBeforeLarave8 = Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
-            $pathBeforeLarave8   = database_path("seeds/{$seederBeforeLarave8}.php");
+            try {
+                foreach (array_unique($dirtyTables) as $dirtyTable) {
+                    $tableNameWithoutPrefix = str_replace(config('database.connections.mysql.prefix'), '', $dirtyTable);
 
-            $seederAfterLarave8 = Str::singular(Str::studly($tableNameWithoutPrefix)) . 'Seeder';
-            $pathAfterLarave8   = database_path("seeders/{$seederAfterLarave8}.php");
+                    /**
+                     * There are two possibilities, e.g.
+                     * 1. The class name before Laravel 8 is UsersTableSeeder, path is database/seeds/UsersTableSeeder.php
+                     * 2. The class name after Laravel 8 is UserSeeder, path is database/seeders/UserSeeder.php
+                     */
+                    $seederBeforeLaravel8 = Str::studly($tableNameWithoutPrefix) . 'TableSeeder';
+                    $pathBeforeLaravel8   = database_path("seeds/{$seederBeforeLaravel8}.php");
 
-            $isBeforeLarave8 = File::exists($pathBeforeLarave8);
-            $isAfterLarave8  = File::exists($pathAfterLarave8);
+                    $seederAfterLaravel8 = Str::singular(Str::studly($tableNameWithoutPrefix)) . 'Seeder';
+                    $pathAfterLaravel8   = database_path("seeders/{$seederAfterLaravel8}.php");
 
-            if ($isBeforeLarave8 || $isAfterLarave8) {
-                DB::table($tableNameWithoutPrefix)->truncate();
+                    $isBeforeLaravel8 = File::exists($pathBeforeLaravel8);
+                    $isAfterLaravel8  = File::exists($pathAfterLaravel8);
 
-                $seeder = $isBeforeLarave8 ? $seederBeforeLarave8 : $seederAfterLarave8;
+                    // Tables without a matching seeder must also be reset to prevent state leaking between tests.
+                    DB::table($tableNameWithoutPrefix)->truncate();
 
-                $this->artisan('db:seed', [
-                    '--class' => $seeder,
-                ]);
+                    if ($isBeforeLaravel8 === false && $isAfterLaravel8 === false) {
+                        continue;
+                    }
+
+                    $seeder = $isBeforeLaravel8 === true ? $seederBeforeLaravel8 : $seederAfterLaravel8;
+
+                    $this->artisan('db:seed', [
+                        '--class' => $seeder,
+                    ]);
+                }
+            } finally {
+                Schema::enableForeignKeyConstraints();
             }
         }
 
