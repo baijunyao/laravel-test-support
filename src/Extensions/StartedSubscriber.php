@@ -71,7 +71,7 @@ final class StartedSubscriber implements \PHPUnit\Event\TestRunner\StartedSubscr
 
                 $date = explode('_', $databaseName)[1] ?? null;
 
-                if (Date::hasFormat($date, 'Ymd') && Date::now()->diffInHours(Date::createFromFormat('Ymd', $date)) >= 2) {
+                if (Date::hasFormat($date, 'Ymd') && Date::now()->diffInHours(Date::createFromFormat('Ymd', $date), true) >= 2) {
                     $this->databaseManager->getSchemaBuilder()->dropDatabaseIfExists($databaseName);
                 }
             }

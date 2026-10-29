@@ -1,0 +1,23 @@
+{
+    "status_code": 200,
+    "headers": {
+        "cache-control": [
+            "no-cache, private"
+        ],
+        "date": "Tue, 01 Jan 2019 00:00:00 UTC",
+        "content-type": [
+            "application/json"
+        ],
+        "access-control-allow-origin": [
+            "*"
+        ],
+        "set-cookie": {
+            "XSRF-TOKEN": "***",
+            "laravel_session": "***"
+        }
+    },
+    "content": {
+        "id": "1",
+        "name": "更新"
+    }
+}

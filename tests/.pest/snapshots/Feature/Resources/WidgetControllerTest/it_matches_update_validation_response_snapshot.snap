@@ -1,0 +1,27 @@
+{
+    "status_code": 422,
+    "headers": {
+        "cache-control": [
+            "no-cache, private"
+        ],
+        "date": "Tue, 01 Jan 2019 00:00:00 UTC",
+        "content-type": [
+            "application/json"
+        ],
+        "access-control-allow-origin": [
+            "*"
+        ],
+        "set-cookie": {
+            "XSRF-TOKEN": "***",
+            "laravel_session": "***"
+        }
+    },
+    "content": {
+        "message": "The name field is required.",
+        "errors": {
+            "name": [
+                "The name field is required."
+            ]
+        }
+    }
+}

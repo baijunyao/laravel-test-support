@@ -1,0 +1,17 @@
+{
+    "status_code": 204,
+    "headers": {
+        "cache-control": [
+            "no-cache, private"
+        ],
+        "date": "Tue, 01 Jan 2019 00:00:00 UTC",
+        "access-control-allow-origin": [
+            "*"
+        ],
+        "set-cookie": {
+            "XSRF-TOKEN": "***",
+            "laravel_session": "***"
+        }
+    },
+    "content": null
+}
